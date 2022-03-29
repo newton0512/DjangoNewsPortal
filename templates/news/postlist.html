@@ -1,0 +1,42 @@
+{% extends 'news/default.html' %}
+{% load custom_filters %}
+
+{% block title %}
+Новости
+{% endblock title %}
+
+{% block content %}
+   <h1>Все новости</h1>
+   <h3>Доступно публикаций: {{ posts|length }}</h3>
+
+   <hr>
+   {% if posts %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Дата публикации</th>
+                    <th scope="col">Рейтинг</th>
+                    <th scope="col">Заголовок</th>
+                    <th scope="col">Текст</th>
+                </tr>
+            </thead>
+            <tbody>
+
+
+           {% for p in posts %}
+           <tr>
+               <th>{{ p.date_create|date:'d.m.Y H:i:s' }}</th>
+               <td>{{ p.rating }}</td>
+
+               <td>{{ p.header|censor }}</td>
+               <td>{{ p.text|truncatewords:20|censor }}</td>
+           </tr>
+           {% endfor %}
+
+            </tbody>
+        </table>
+   {% else %}
+       <h2>Публикации отсутствуют!</h2>
+   {% endif %}
+
+{% endblock content %}

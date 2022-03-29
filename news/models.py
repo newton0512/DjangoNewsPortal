@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models import Sum1
+from django.db.models import Sum
 
 news = 'NS'
 article = 'AR'
@@ -46,6 +46,9 @@ class Post(models.Model):
 
     def preview(self):  # предварительный просмотр публикации
         return self.text[:124] + '...'
+
+    def __str__(self):
+        return self.header
 
 
 class PostCategory(models.Model):   # промежуточная таблица для связи много-к-многим

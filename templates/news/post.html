@@ -1,0 +1,31 @@
+{% extends 'news/default.html' %}
+{% load custom_filters %}
+
+{% block title %}
+{{ post.header }}
+{% endblock title %}
+
+{% block content %}
+    <h3> {{ post.header|censor }}</h3>
+    <hr>
+    <table style="border-collapse: collapse; width: 100%;" border="1">
+        <tbody>
+            <tr>
+                <td>
+                    <p>Дата публикации: {{ post.date_create|date:'d.m.Y H:i:s'}}</p>
+                </td>
+                <td>
+                    <p>Автор: {{ post.author_id.user_id.username}}</p>
+                </td>
+                <td>
+                    <p>Тип публикации: {{ cat }}</p>
+                </td>
+                <td>
+                    <p>Рейтинг: {{ post.rating }}</p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <p align="justify"> {{ post.text|censor }} </p>
+{% endblock content %}
