@@ -7,7 +7,7 @@ from .filters import *
 from .forms import *
 from .models import POST_TYPES, news as st_news, article as st_article
 
-paginator_items_count = 3
+paginator_items_count = 10
 
 
 class PostList(ListView):
