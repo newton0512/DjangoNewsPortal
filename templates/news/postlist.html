@@ -1,5 +1,6 @@
 {% extends 'news/default.html' %}
 {% load custom_filters %}
+{% load custom_tags %}
 
 {% block title %}
 Новости
@@ -7,7 +8,8 @@
 
 {% block content %}
    <h1>Все новости</h1>
-   <h3>Доступно публикаций: {{ posts|length }}</h3>
+   {% block search %}
+   {% endblock search%}
 
    <hr>
    {% if posts %}

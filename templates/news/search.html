@@ -1,0 +1,9 @@
+{% extends 'news/postlist.html' %}
+{% block search %}
+    <form action="" method="get">
+       {# Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями #}
+       {{ filterset.form.as_p }}
+       {# Добавим кнопку отправки данных формы #}
+       <input type="submit" value="Найти" />
+   </form>
+{% endblock search %}
