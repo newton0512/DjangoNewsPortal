@@ -1,0 +1,11 @@
+{% extends "news/default.html" %}
+
+{% block content %}
+<h2> Выход из системы </h2>
+<hr>
+<form action="" method="post">
+    {% csrf_token %}
+    <p>Вы действительно хотите выйти?</p>
+    <input type="submit" value="Выйти" />
+</form>
+{% endblock %}

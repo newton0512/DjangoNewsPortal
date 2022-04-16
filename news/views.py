@@ -1,5 +1,8 @@
+from django.contrib.auth import logout, login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Post, POST_TYPES
@@ -32,6 +35,7 @@ class PostList(ListView):
         context = super().get_context_data(**kwargs)
         # Добавляем в контекст объект фильтрации.
         context['filterset'] = self.filterset
+        context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
         return context
 
 
@@ -48,6 +52,7 @@ class PostView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['cat'] = dict(POST_TYPES)[self.object.types]
+        context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
         return context
 
 
@@ -73,7 +78,8 @@ def search_page(request):
     return render(request, 'news/search.html', context=context)
 
 
-class NewsCreate(CreateView):
+class NewsCreate(PermissionRequiredMixin, CreateView):
+    permission_required = ('news.add_post',)
     form_class = PostForm
     model = Post
     template_name = 'news/post_edit.html'
@@ -89,7 +95,8 @@ class NewsCreate(CreateView):
         return context
 
 
-class ArticleCreate(CreateView):
+class ArticleCreate(PermissionRequiredMixin, CreateView):
+    permission_required = ('news.add_post',)
     form_class = PostForm
     model = Post
     template_name = 'news/post_edit.html'
@@ -105,7 +112,8 @@ class ArticleCreate(CreateView):
         return context
 
 
-class PostUpdate(UpdateView):
+class PostUpdate(PermissionRequiredMixin, UpdateView):
+    permission_required = ('news.change_post',)
     form_class = PostForm
     model = Post
     template_name = 'news/post_edit.html'
@@ -116,7 +124,47 @@ class PostUpdate(UpdateView):
         return context
 
 
-class PostDelete(DeleteView):
+class PostDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = ('news.delete_post',)
     model = Post
     template_name = 'news/post_delete.html'
     success_url = reverse_lazy('postlist')
+
+class UserDataUpdate(LoginRequiredMixin, UpdateView):
+    form_class = UserDataForm
+    model = User
+    template_name = 'account/user_edit.html'
+    success_url = reverse_lazy('postlist')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Редактирование данных пользователя:'
+        return context
+
+    def get_object(self):
+        return self.request.user
+
+
+def logout_user(request):
+    logout(request)
+    return redirect('login')
+
+class BaseRegisterView(CreateView):
+    model = User
+    form_class = BaseRegisterForm
+    success_url = reverse_lazy('postlist')
+    template_name = 'account/user_edit.html'
+
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        return redirect('postlist')
+
+
+@login_required
+def upgrade_me(request):
+    user = request.user
+    premium_group = Group.objects.get(name='authors')
+    if not request.user.groups.filter(name='authors').exists():
+        premium_group.user_set.add(user)
+    return redirect('/')
