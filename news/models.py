@@ -29,9 +29,13 @@ class Author(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)  # название категории, уникальное поле
+    subscribers = models.ManyToManyField(User, through='SubscribersCategory')  # категории публикаций
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('category', kwargs={'cat_id': self.pk})
 
 
 class Post(models.Model):
@@ -80,3 +84,7 @@ class Comment(models.Model):
     def dislike(self):  # уменьшение рейтинга комментария
         self.rating -= 1
         self.save()
+
+class SubscribersCategory(models.Model):   # промежуточная таблица для связи много-к-многим
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)     # ид пользователя
+    category_id = models.ForeignKey(Category, on_delete=models.CASCADE)     # ид категории

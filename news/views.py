@@ -2,6 +2,7 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -9,6 +10,7 @@ from .models import Post, POST_TYPES
 from .filters import *
 from .forms import *
 from .models import POST_TYPES, news as st_news, article as st_article
+
 
 paginator_items_count = 10
 
@@ -35,6 +37,7 @@ class PostList(ListView):
         context = super().get_context_data(**kwargs)
         # Добавляем в контекст объект фильтрации.
         context['filterset'] = self.filterset
+        context['cats'] = Category.objects.all()
         context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
         return context
 
@@ -53,6 +56,7 @@ class PostView(DetailView):
         context = super().get_context_data(**kwargs)
         context['cat'] = dict(POST_TYPES)[self.object.types]
         context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
+        context['cats'] = Category.objects.all()
         return context
 
 
@@ -73,6 +77,7 @@ def search_page(request):
         'filterset': filterset,
         'page_obj': f_qs,
         'paginator': paginator,
+        'cats': Category.objects.all(),
     }
 
     return render(request, 'news/search.html', context=context)
@@ -87,6 +92,8 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
     def form_valid(self, form):
         news = form.save(commit=False)
         news.types = st_news
+        author = Author.objects.get(user_id=self.request.user)
+        news.author_id = author
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -104,6 +111,8 @@ class ArticleCreate(PermissionRequiredMixin, CreateView):
     def form_valid(self, form):
         art = form.save(commit=False)
         art.types = st_article
+        author = Author.objects.get(user_id=self.request.user)
+        art.author_id = author
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -129,6 +138,7 @@ class PostDelete(PermissionRequiredMixin, DeleteView):
     model = Post
     template_name = 'news/post_delete.html'
     success_url = reverse_lazy('postlist')
+
 
 class UserDataUpdate(LoginRequiredMixin, UpdateView):
     form_class = UserDataForm
@@ -167,4 +177,38 @@ def upgrade_me(request):
     premium_group = Group.objects.get(name='authors')
     if not request.user.groups.filter(name='authors').exists():
         premium_group.user_set.add(user)
-    return redirect('/')
+        Author.objects.create(user_id=user)
+    return redirect('postlist')
+
+
+def show_category(request, cat_id):
+    posts = Post.objects.filter(categories__id=cat_id).order_by('-date_create')
+    cats = Category.objects.all()
+    try:
+        already_subscribed = SubscribersCategory.objects.get(user_id=request.user.pk, category_id=cat_id)
+    except SubscribersCategory.DoesNotExist:
+        already_subscribed = None
+    context = {
+        'posts': posts,
+        'cats': cats,
+        'current_cat': Category.objects.get(id=cat_id),
+        'already_subscribed': already_subscribed,
+    }
+
+    return render(request, 'news/postlist.html', context=context)
+
+
+@login_required
+def subscribe_on_cat(request, cat_id):
+    user = request.user
+    cat = Category.objects.get(id=cat_id)
+    cat.subscribers.add(user)
+    return redirect('category', cat_id=cat_id)
+
+
+@login_required
+def unsubscribe_cat(request, cat_id):
+    user = request.user
+    cat = Category.objects.get(id=cat_id)
+    cat.subscribers.remove(user)
+    return redirect('category', cat_id=cat_id)

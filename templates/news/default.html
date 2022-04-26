@@ -18,10 +18,25 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        {% if cats %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="true">Категории</a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" data-bs-popper="none">
+                                {% for c in cats %}
+                                    <li><a class="dropdown-item" href="{{ c.get_absolute_url }}">{{ c.name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        {% endif %}
                         <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'postlist_search' %}">Поиск</a></li>
                         {% if user.is_authenticated %}
-                            <li class="nav-item"><a class="nav-link" href="{% url 'news_create' %}">Создать новость</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{% url 'art_create' %}">Создать статью</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="true">Создать</a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" data-bs-popper="none">
+                                <li><a class="dropdown-item" href="{% url 'news_create' %}">Создать новость</a></li>
+                                <li><a class="dropdown-item" href="{% url 'art_create' %}">Создать статью</a></li>
+                            </ul>
+                        </li>
                             <li class="nav-item"><a class="nav-link" href="{% url 'user_edit' %}">Редактировать профиль</a></li>
                             <li class="nav-item"><a class="nav-link" href="{% url 'account_logout' %}">Выйти</a></li>
                         {% else %}
@@ -80,5 +95,9 @@
             </div>
         </div>
         {% endif %}
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
     </body>
 </html>

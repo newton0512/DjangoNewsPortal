@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week-Mail</title>
+</head>
+<body>
+    <h2>Здравствуй, {{ username }}!</h2>
+    <p>В категории "<a href="{{ cat_url }}">{{ category_name }}</a>" появились новые публикации:</p>
+    <hr>
+    <ul>
+        {% for p in posts%}
+            <li>{{ p.header }}</li>
+        {% endfor %}
+    </ul>
+    <hr>
+    <p>Приятного чтения!</p>
+</body>
+</html>

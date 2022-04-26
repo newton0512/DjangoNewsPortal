@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Mail</title>
+</head>
+<body>
+     {% load account %}
+    <h2>Здравствуйте, {{ user.username }}!</h2>
+    <hr>
+    <h3>Спасибо, что зарегистрировались на нашем сайте!</h3>
+    <h3>Пожалуйста, пройдите по <a href="{{ activate_url }}">ссылке</a>, чтобы активировать ваш аккаунт.</h3>
+</body>
+</html>

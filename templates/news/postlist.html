@@ -7,9 +7,24 @@
 {% endblock title %}
 
 {% block content %}
-   <h1>Все новости</h1>
+    {% if current_cat %}
+        {% if user.is_authenticated %}
+            <h1>Категория: {{ current_cat.name }}</h1>
+            {% if already_subscribed %}
+                <button> <a href="{% url 'unsubscribe' current_cat.pk %}"> Отписаться от обновлений. </a> </button>
+            {% else %}
+                <button> <a href="{% url 'subscribe' current_cat.pk %}"> Подписаться на обновления! </a> </button>
+            {% endif %}
+        {% else %}
+            <h1>Категория: {{ current_cat.name }}</h1>
+        {% endif %}
+    {% else %}
+       <h1>Все новости</h1>
+    {% endif %}
+
+
    {% block search %}
-   {% endblock search%}
+   {% endblock search %}
 
    <hr>
    {% if posts %}
@@ -30,7 +45,7 @@
                <th>{{ p.date_create|date:'d.m.Y H:i:s' }}</th>
                <td>{{ p.rating }}</td>
 
-               <td>{{ p.header|censor }}</td>
+               <td><a href="{% url 'news_detail' p.pk %}">{{ p.header|censor }}</a></td>
                <td>{{ p.text|truncatewords:20|censor }}</td>
            </tr>
            {% endfor %}
