@@ -18,7 +18,6 @@ from ...models import *
 logger = logging.getLogger(__name__)
 
 
-# наша задача по выводу текста на экран
 def my_job():
     #  Your job processing logic here...
     one_week_ago = datetime.today() - timedelta(days=7)
@@ -47,8 +46,6 @@ def my_job():
                 )
                 msg.attach_alternative(html_content, "text/html")  # добавляем html
                 msg.send()  # отсылаем
-
-
 
 
 # функция, которая будет удалять неактуальные задачи

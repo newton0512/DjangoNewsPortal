@@ -10,6 +10,7 @@ from .models import Post, POST_TYPES
 from .filters import *
 from .forms import *
 from .models import POST_TYPES, news as st_news, article as st_article
+from .tasks import *
 
 
 paginator_items_count = 10
@@ -178,6 +179,12 @@ def upgrade_me(request):
     if not request.user.groups.filter(name='authors').exists():
         premium_group.user_set.add(user)
         Author.objects.create(user_id=user)
+    return redirect('postlist')
+
+def test_f(request):
+    print('*******NENENENENENENNENEN*********')
+    printer.delay(4)
+    hello.delay()
     return redirect('postlist')
 
 
